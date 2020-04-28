@@ -42,7 +42,7 @@ class BOARD:
 
     # The spi object is kept here
     spi = None
-    
+
     # tell pySX127x here whether the attached RF module uses low-band (RF*_LF pins) or high-band (RF*_HF pins).
     # low band (called band 1&2) are 137-175 and 410-525
     # high band (called band 3) is 862-1020
@@ -58,10 +58,11 @@ class BOARD:
         GPIO.setup(BOARD.LED, GPIO.OUT)
         GPIO.output(BOARD.LED, 0)
         # switch
-        GPIO.setup(BOARD.SWITCH, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
+        GPIO.setup(BOARD.SWITCH, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         # DIOx
         for gpio_pin in [BOARD.DIO0, BOARD.DIO1, BOARD.DIO2, BOARD.DIO3]:
-            GPIO.setup(gpio_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            if gpio_pin is not None:
+                GPIO.setup(gpio_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         # blink 2 times to signal the board is set up
         BOARD.blink(.1, 2)
 
@@ -95,10 +96,14 @@ class BOARD:
 
     @staticmethod
     def add_events(cb_dio0, cb_dio1, cb_dio2, cb_dio3, cb_dio4, cb_dio5, switch_cb=None):
-        BOARD.add_event_detect(BOARD.DIO0, callback=cb_dio0)
-        BOARD.add_event_detect(BOARD.DIO1, callback=cb_dio1)
-        BOARD.add_event_detect(BOARD.DIO2, callback=cb_dio2)
-        BOARD.add_event_detect(BOARD.DIO3, callback=cb_dio3)
+        if BOARD.DIO0 is not None:
+            BOARD.add_event_detect(BOARD.DIO0, callback=cb_dio0)
+        if BOARD.DIO1 is not None:
+            BOARD.add_event_detect(BOARD.DIO1, callback=cb_dio1)
+        if BOARD.DIO2 is not None:
+            BOARD.add_event_detect(BOARD.DIO2, callback=cb_dio2)
+        if BOARD.DIO3 is not None:
+            BOARD.add_event_detect(BOARD.DIO3, callback=cb_dio3)
         # the modtronix inAir9B does not expose DIO4 and DIO5
         if switch_cb is not None:
             GPIO.add_event_detect(BOARD.SWITCH, GPIO.RISING, callback=switch_cb, bouncetime=300)
